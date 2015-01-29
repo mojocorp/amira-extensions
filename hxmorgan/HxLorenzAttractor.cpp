@@ -24,11 +24,9 @@ void HxLorenzAttractor::update()
 
 void HxLorenzAttractor::compute()
 {
-    if (portAction.wasHit())
-    {
+    if (portAction.wasHit()) {
         McHandle<HxLineSet> lineset = dynamic_cast<HxLineSet*>(getResult());
-        if (!lineset)
-        {
+        if (!lineset) {
             lineset = new HxLineSet();
         }
 
@@ -45,8 +43,7 @@ void HxLorenzAttractor::compute()
         double x0 = 0.1;
         double y0 = 0;
         double z0 = 0;
-        for (int i=0; i<portNumPoints.getValue(); i++) 
-        {
+        for (int i=0; i<portNumPoints.getValue(); i++) {
             const double x1 = x0 + h * a * (y0 - x0);
             const double y1 = y0 + h * (x0 * (b - z0) - y0);
             const double z1 = z0 + h * (x0 * y0 - c * z0);
@@ -54,11 +51,11 @@ void HxLorenzAttractor::compute()
             y0 = y1;
             z0 = z1;
 
-            lineset->points[i].setValue(x0,y0,z0);
+            lineset->points[i].setValue(x0, y0, z0);
             lineset->lines[0].points[i] = i;
         }
 
-        lineset->composeLabel("LorenzAttractor","lineset");
+        lineset->composeLabel("LorenzAttractor", "lineset");
         lineset->touch();
         setResult(0, lineset);
     }
