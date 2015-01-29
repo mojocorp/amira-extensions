@@ -1,0 +1,25 @@
+# ----------------------------------------------------------------------
+# hxmorgan package
+# ----------------------------------------------------------------------
+module -name "Lorenz Attractor" \
+    -class "HxLorenzAttractor" \
+    -category "Morgan" \
+    -package "hxmorgan"
+
+module -name "GLSLVertexView" \
+    -primary "HxVertexSet" \
+    -class "HxGLSLVertexView" \
+    -category "Morgan" \
+    -package "hxmorgan"
+
+module -name "OIV Surface" \
+    -primary "HxSurface" \
+    -class "HxOIVDisplaySurface" \
+    -category "Morgan" \
+    -package "hxmorgan"
+
+module -name "ArithmeticJS" \
+    -primary "HxUniformScalarField3" \
+    -class "HxArithmeticJS" \
+    -category "Morgan" \
+    -package "hxmorgan"
