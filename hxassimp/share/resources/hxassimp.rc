@@ -1,0 +1,149 @@
+dataFile -name "Direct3D XFile Importer" \
+         -ext "x"               \
+         -header "^xof"         \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "Wavefront Object Importer" \
+         -ext "obj"             \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -priority 2            \
+         -package "hxassimp"
+
+dataFile -name "Discreet 3DS Importer" \
+         -ext "3ds,prj"         \
+         -header "^MM"          \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -priority 2            \
+         -package "hxassimp"
+
+dataFile -name "Stanford Polygon Library (PLY) Importer" \
+         -ext "ply"             \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -priority 2            \
+         -package "hxassimp"
+
+dataFile -name "ASE Importer"   \
+         -ext "ase,ask"         \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "Stereolithography (STL) Importer" \
+         -ext "stl"             \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "LightWave/Modo Object Importer" \
+         -ext "lwo,lxo"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "Drawing Interchange Format (DXF) Importer" \
+         -ext "dxf"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -priority 2            \
+         -package "hxassimp"
+
+dataFile -name "Neutral File Format Importer" \
+         -ext "enff,nff"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "OFF Importer" \
+         -ext "off"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "AC3D Importer" \
+         -ext "ac,acc,ac3d"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "BVH Importer (MoCap)" \
+         -ext "bvh"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "Quick3D Importer" \
+         -ext "q3o,q3s"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "Collada Importer" \
+         -ext "dae"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "Terragen Heightmap Importer" \
+         -ext "ter"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "CharacterStudio Motion Importer (MoCap)" \
+         -ext "csm"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "LightWave Scene Importer" \
+         -ext "lws,mot"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "Milkshape 3D Importer" \
+         -ext "ms3d"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "TrueSpace Object Importer" \
+         -ext "cob,scn"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "Blender 3D Importer" \
+         -ext "blend"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "Nendo Mesh Importer" \
+         -ext "ndo"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "Industry Foundation Classes (IFC) Importer" \
+         -ext "ifc,ifczip"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "XGL Importer" \
+         -ext "xgl,zgl"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"
+
+dataFile -name "Autodesk FBX Importer" \
+         -ext "fbx"            \
+         -load "hxAssimpReader" \
+         -type "HxSurface"      \
+         -package "hxassimp"

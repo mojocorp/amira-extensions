@@ -1,0 +1,18 @@
+set PACKAGE {hxassimp}
+
+set LABELS {experimental}
+
+set INCLUDES { ../assimp/include }
+
+set LIBS {
+    assimp
+    hxsurface
+    hxcore
+    amiramesh
+    mclib
+    qt
+}
+
+set SHARE {
+    share/resources/hxassimp.rc
+}
