@@ -16,7 +16,7 @@ HX_INIT_CLASS(HxOIVDisplaySurface,HxModule)
 
 HxOIVDisplaySurface::HxOIVDisplaySurface() : 
     HxModule(HxSurface::getClassTypeId()),
-    portRenderCaching(this, "renderCaching", 3)
+    portRenderCaching(this, "renderCaching", tr("Render Cahching"), 3)
 {
     portRenderCaching.setValue(1);
     portRenderCaching.setLabel(0,"On");
@@ -93,7 +93,7 @@ void HxOIVDisplaySurface::compute()
                 const HxParamBundle* b = materials->bundle(innerRegion);
                 SbColor color;
                 if (!b->findColor(&color[0]))
-                    color = matDatabase->getColor(b->name());
+                    color = matDatabase->getColor(qPrintable(b->name()));
                 matptr[k] = color;
             }
         }

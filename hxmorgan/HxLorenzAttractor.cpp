@@ -6,8 +6,8 @@ HX_INIT_CLASS(HxLorenzAttractor,HxCompModule);
 
 HxLorenzAttractor::HxLorenzAttractor() :
     HxCompModule(HxData::getClassTypeId()),
-    portNumPoints(this, "numPoints"),
-    portAction(this, "action")
+    portNumPoints(this, "numPoints", tr("Number Of Points")),
+    portAction(this, "action", tr("Action"))
 {
     portNumPoints.setMinMax(0, 10000);
     portNumPoints.setValue(1000);

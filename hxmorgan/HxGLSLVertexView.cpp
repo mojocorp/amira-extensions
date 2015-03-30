@@ -19,8 +19,8 @@ HX_INIT_CLASS(HxGLSLVertexView,HxModule);
 
 HxGLSLVertexView::HxGLSLVertexView() 
 : HxModule(HxVertexSet::getClassTypeId()),
-  portDrawStyle  (this, "drawStyle", 4),
-  portSphereScale(this, "sphereScale")
+  portDrawStyle  (this, "drawStyle", tr("Draw Style"), 4),
+  portSphereScale(this, "sphereScale", tr("Sphere Scale"))
 {
     portDrawStyle.setLabel(POINTS,"Points");
     portDrawStyle.setLabel(PLATES,"Plates");
