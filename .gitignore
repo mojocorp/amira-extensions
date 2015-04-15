@@ -1,0 +1,17 @@
+version.cpp
+winversion.rc
+winversion.h
+init.cpp
+api.h
+GNUmakefile
+Makefile
+*~
+*.ncb
+*.aps
+*.suo
+*.vc*proj*
+*.sln
+*.user
+*.pdb
+Thumbs.db
+.DS_Store
