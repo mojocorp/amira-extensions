@@ -1,0 +1,8 @@
+# ----------------------------------------------------------------------
+# hxholopyramid package
+# ----------------------------------------------------------------------
+module -name "Holo Pyramid" \
+    -class "HxHoloPyramid" \
+    -category "Display" \
+    -package "hxholopyramid"
+

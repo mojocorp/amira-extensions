@@ -1,0 +1,3 @@
+set PACKAGE {hxholopyramid}
+
+set LIBS {hxcore amiramesh mclib qt oiv}
