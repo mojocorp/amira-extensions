@@ -18,6 +18,46 @@ public:
     {
     }
 
+    void actualRedraw()
+    {
+        SoCamera* camera = getCamera();
+
+        adjustCameraClippingPlanes();
+
+        getSceneManager()->render(true, true);
+
+        camera->enableNotify(false);
+        rotate(SbRotation(SbVec3f(0,1,0), M_PI/2));
+
+        adjustCameraClippingPlanes();
+        getSceneManager()->render(false, false);
+
+        rotate(SbRotation(SbVec3f(0,1,0), M_PI));
+
+        adjustCameraClippingPlanes();
+        getSceneManager()->render(false, false);
+        camera->enableNotify(true);
+    }
+
+    void rotate(const SbRotation &rot)
+    {
+        SoCamera* camera = getCamera();
+
+        // get center of rotation
+        float radius = camera->focalDistance.getValue();
+
+        SbVec3f forward;
+        camera->orientation.getValue().multVec(SbVec3f(0,0,-1), forward);
+
+        SbVec3f center = camera->position.getValue() + radius * forward;
+
+        // apply new rotation to the camera
+        camera->orientation = rot * camera->orientation.getValue();
+
+        // reposition camera to look at pt of interest
+        camera->orientation.getValue().multVec(SbVec3f(0,0,-1), forward);
+        camera->position = center - radius * forward;
+    }
 };
 
 QxHoloPyramidWidget::QxHoloPyramidWidget(QWidget* parent)
