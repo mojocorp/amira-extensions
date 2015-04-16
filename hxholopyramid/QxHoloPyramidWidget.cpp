@@ -66,7 +66,9 @@ public:
         getSceneManager()->render(true, true);
 
         // Left View
-        rotate(SbRotation(SbVec3f(0,1,0), M_PI/2));
+        SbRotation r1(SbVec3f(0,0,1), M_PI/2);
+
+        rotate(r1*SbRotation(SbVec3f(0,1,0), M_PI/2));
 
         adjustCameraClippingPlanes();
 
