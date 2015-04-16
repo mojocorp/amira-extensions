@@ -19,13 +19,5 @@ public:
 private:
     Q_DISABLE_COPY(QxHoloPyramidWidget);
 
-    // Callback that reports whenever the camera changes.
-    static void cameraChangedCB(void *data, SoSensor *);
-
     QxHoloViewer* viewer;
-
-    McHandle<SoSeparator> root;
-    McHandle<SoPerspectiveCamera> camera;
-
-    SoNodeSensor* sensor;
 };

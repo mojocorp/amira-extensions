@@ -5,6 +5,8 @@
 #include <hxholopyramid/api.h>
 
 #include <hxcore/HxModule.h>
+#include <hxcore/HxPortIntSlider.h>
+#include <hxcore/HxPortGeneric.h>
 
 class QxHoloPyramidWidget;
 
@@ -15,6 +17,10 @@ class HXHOLOPYRAMID_API HxHoloPyramid : public HxModule
   public:
     /// Constructor.
     HxHoloPyramid();
+
+    /// 
+    HxPortIntSlider portDisplay;
+    HxPortGeneric portOptions;
 
     /// Update method.
     virtual void update();
