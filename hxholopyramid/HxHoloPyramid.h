@@ -1,10 +1,13 @@
 #pragma once
 
+#include <QScopedPointer>
+
 #include <hxholopyramid/api.h>
 
 #include <hxcore/HxModule.h>
 
-/// Converts a vertex set into a cluster object.
+class QxHoloPyramidWidget;
+
 class HXHOLOPYRAMID_API HxHoloPyramid : public HxModule 
 {
     HX_HEADER(HxHoloPyramid);
@@ -20,6 +23,7 @@ class HXHOLOPYRAMID_API HxHoloPyramid : public HxModule
     virtual void compute();
 
   protected:
-
     virtual ~HxHoloPyramid();
+
+    QScopedPointer<QxHoloPyramidWidget> m_viewer;
 };
