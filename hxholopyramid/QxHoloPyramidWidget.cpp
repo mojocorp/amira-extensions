@@ -16,6 +16,82 @@
 #include <hxcore/HxController.h>
 #include <hxcore/HxViewer.h>
 
+class SxGLHoloRenderAction : public SoGLRenderAction
+{
+public:
+    SxGLHoloRenderAction(SoCamera * cam, SoViewport * vp) 
+        : SoGLRenderAction(SbVec2s(1,1)), camera(cam), viewport(vp)
+    {
+    }
+
+    virtual void apply(SoNode* node)
+    {
+        const SbViewportRegion &vpr = getViewportRegion();
+        const SbVec2s & size = vpr.getViewportSizePixels();
+
+        const int width = size[0];
+        const int height = size[1];
+
+        const int vpsize = height / 2;
+
+        SbVec3f position = camera->position.getValue();
+        SbRotation orientation = camera->orientation.getValue();
+
+        camera->enableNotify(false);
+        viewport->enableNotify(false);
+        viewport->size.setValue(vpsize, vpsize);
+
+        // Front View
+        rotateCamera(SbRotation(SbVec3f(0,0,1), M_PI));
+
+        viewport->origin.setValue((width - vpsize) / 2, height - vpsize);
+
+        SoGLRenderAction::apply(node);
+
+        // Left View
+        SbRotation r1(SbVec3f(0,0,1), M_PI/2);
+
+        rotateCamera(r1*SbRotation(SbVec3f(0,1,0), M_PI/2));
+
+        viewport->origin.setValue(width / 2, (height/2) - vpsize/2);
+
+        SoGLRenderAction::apply(node);
+
+        // Right View
+        rotateCamera(SbRotation(SbVec3f(0,1,0), M_PI));
+
+        viewport->origin.setValue(width / 2 - vpsize, (height/2) - vpsize/2);
+
+        SoGLRenderAction::apply(node);
+
+        camera->position = position;
+        camera->orientation = orientation;
+        camera->enableNotify(true);
+        viewport->enableNotify(true);
+    }
+
+    void rotateCamera(const SbRotation &rot)
+    {
+        // get center of rotation
+        const float radius = camera->focalDistance.getValue();
+
+        SbVec3f forward;
+        camera->orientation.getValue().multVec(SbVec3f(0,0,-1), forward);
+
+        const SbVec3f center = camera->position.getValue() + radius * forward;
+
+        // apply new rotation to the camera
+        camera->orientation = rot * camera->orientation.getValue();
+
+        // reposition camera to look at pt of interest
+        camera->orientation.getValue().multVec(SbVec3f(0,0,-1), forward);
+        camera->position = center - radius * forward;
+    }
+protected:
+    SoCamera * camera;
+    SoViewport * viewport;
+};
+
 class QxHoloViewer : public SoQtViewer
 {
 public:
@@ -28,6 +104,8 @@ public:
         sensor = new SoNodeSensor;
         sensor->setPriority(0);
         sensor->setFunction(cameraChangedCB, this);
+
+        setGLRenderAction(new SxGLHoloRenderAction(camera, viewport));
     }
 
     ~QxHoloViewer()
@@ -60,68 +138,6 @@ public:
         }
     }
 
-    void actualRedraw()
-    {
-        int width = getSize()[0];
-        int height = getSize()[1];
-
-        int vpsize = height / 2;
-
-        camera->enableNotify(false);
-        headlightRot->enableNotify(false);
-        viewport->enableNotify(false);
-        viewport->size.setValue(vpsize, vpsize);
-
-        adjustCameraClippingPlanes();
-
-        // Front View
-        rotate(SbRotation(SbVec3f(0,0,1), M_PI));
-
-        viewport->origin.setValue((width - vpsize) / 2, height - vpsize);
-
-        getSceneManager()->render(true, true);
-
-        // Left View
-        SbRotation r1(SbVec3f(0,0,1), M_PI/2);
-
-        rotate(r1*SbRotation(SbVec3f(0,1,0), M_PI/2));
-
-        viewport->origin.setValue(width / 2, (height/2) - vpsize/2);
-
-        getSceneManager()->render(false, true);
-
-        // Right View
-        rotate(SbRotation(SbVec3f(0,1,0), M_PI));
-
-        viewport->origin.setValue(width / 2 - vpsize, (height/2) - vpsize/2);
-
-        getSceneManager()->render(false, true);
-
-        camera->enableNotify(true);
-        headlightRot->enableNotify(true);
-        viewport->enableNotify(true);
-    }
-
-    void rotate(const SbRotation &rot)
-    {
-        // get center of rotation
-        float radius = camera->focalDistance.getValue();
-
-        SbVec3f forward;
-        camera->orientation.getValue().multVec(SbVec3f(0,0,-1), forward);
-
-        SbVec3f center = camera->position.getValue() + radius * forward;
-
-        // apply new rotation to the camera
-        camera->orientation = rot * camera->orientation.getValue();
-
-        // reposition camera to look at pt of interest
-        camera->orientation.getValue().multVec(SbVec3f(0,0,-1), forward);
-        camera->position = center - radius * forward;
-
-        headlightRot->rotation.setValue(camera->orientation.getValue());
-    }
-
     // Callback that reports whenever the camera changes.
     static void cameraChangedCB(void *data, SoSensor *)
     {
@@ -130,6 +146,7 @@ public:
         HxViewer* hxviewer = theController->viewer(0);
 
         _this->camera->copyFieldValues(hxviewer->getCamera());
+        _this->headlightRot->rotation.setValue(_this->camera->orientation.getValue());
     }
 
     /// Override original method since it seems to adjust the clipping planes in a weird manner.
