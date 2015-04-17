@@ -11,6 +11,7 @@
 #include <Inventor/nodes/SoDirectionalLight.h>
 #include <Inventor/sensors/SoNodeSensor.h>
 #include <Inventor/actions/SoSearchAction.h>
+#include <Inventor/actions/SoGetBoundingBoxAction.h>
 
 #include <hxcore/HxController.h>
 #include <hxcore/HxViewer.h>
@@ -71,10 +72,10 @@ public:
         viewport->enableNotify(false);
         viewport->size.setValue(vpsize, vpsize);
 
+        adjustCameraClippingPlanes();
+
         // Front View
         rotate(SbRotation(SbVec3f(0,0,1), M_PI));
-
-        adjustCameraClippingPlanes();
 
         viewport->origin.setValue((width - vpsize) / 2, height - vpsize);
 
@@ -85,16 +86,12 @@ public:
 
         rotate(r1*SbRotation(SbVec3f(0,1,0), M_PI/2));
 
-        //adjustCameraClippingPlanes();
-
         viewport->origin.setValue(width / 2, (height/2) - vpsize/2);
 
         getSceneManager()->render(false, true);
 
         // Right View
         rotate(SbRotation(SbVec3f(0,1,0), M_PI));
-
-        //adjustCameraClippingPlanes();
 
         viewport->origin.setValue(width / 2 - vpsize, (height/2) - vpsize/2);
 
@@ -133,6 +130,44 @@ public:
         HxViewer* hxviewer = theController->viewer(0);
 
         _this->camera->copyFieldValues(hxviewer->getCamera());
+    }
+
+    /// Override original method since it seems to adjust the clipping planes in a weird manner.
+    /// Maybe using a screen-space projection or whatever.
+    virtual void adjustCameraClippingPlanes()
+    {
+        if (!camera)
+            return;
+
+        SoGetBoundingBoxAction clipbox_action(getViewportRegion());
+        clipbox_action.apply(root);
+
+        SbBox3f bbox = clipbox_action.getBoundingBox();
+
+        if (bbox.isEmpty())
+            return;
+
+        SbSphere bSphere;
+        bSphere.circumscribe(bbox);
+
+        SbVec3f forward;
+        camera->orientation.getValue().multVec(SbVec3f(0,0,-1), forward);
+
+        float denumerator = forward.length();
+        float numerator = (bSphere.getCenter() - camera->position.getValue()).dot(forward);
+        float distToCenter = (forward * (numerator / denumerator)).length();
+
+        float farplane = distToCenter + bSphere.getRadius();
+
+        // if scene is behind the camera, don't change the planes
+        if (farplane < 0) return;
+
+        float nearplane = distToCenter - bSphere.getRadius();
+
+        if (nearplane < (0.001 * farplane)) nearplane = 0.001 * farplane;
+
+        camera->nearDistance = nearplane;
+        camera->farDistance = farplane;
     }
 
 private:
