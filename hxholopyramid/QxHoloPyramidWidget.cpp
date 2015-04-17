@@ -6,7 +6,6 @@
 #include <Inventor/nodes/SoCamera.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoSeparator.h>
-#include <Inventor/nodes/SoViewport.h>
 #include <Inventor/nodes/SoRotation.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
 #include <Inventor/sensors/SoNodeSensor.h>
@@ -19,14 +18,14 @@
 class SxGLHoloRenderAction : public SoGLRenderAction
 {
 public:
-    SxGLHoloRenderAction(SoCamera * cam, SoViewport * vp) 
-        : SoGLRenderAction(SbVec2s(1,1)), camera(cam), viewport(vp)
+    SxGLHoloRenderAction(SoCamera * cam) 
+        : SoGLRenderAction(SbVec2s(1,1)), camera(cam)
     {
     }
 
     virtual void apply(SoNode* node)
     {
-        const SbViewportRegion &vpr = getViewportRegion();
+        const SbViewportRegion vpr = getViewportRegion();
         const SbVec2s & size = vpr.getViewportSizePixels();
 
         const int width = size[0];
@@ -38,13 +37,13 @@ public:
         SbRotation orientation = camera->orientation.getValue();
 
         camera->enableNotify(false);
-        viewport->enableNotify(false);
-        viewport->size.setValue(vpsize, vpsize);
 
         // Front View
         rotateCamera(SbRotation(SbVec3f(0,0,1), M_PI));
 
-        viewport->origin.setValue((width - vpsize) / 2, height - vpsize);
+        SbViewportRegion vp;
+        vp.setViewportPixels(SbVec2s((width - vpsize) / 2, height - vpsize), SbVec2s(vpsize, vpsize) );
+        setViewportRegion(vp);
 
         SoGLRenderAction::apply(node);
 
@@ -53,21 +52,25 @@ public:
 
         rotateCamera(r1*SbRotation(SbVec3f(0,1,0), M_PI/2));
 
-        viewport->origin.setValue(width / 2, (height/2) - vpsize/2);
+        vp.setViewportPixels(SbVec2s(width / 2, (height/2) - vpsize/2), SbVec2s(vpsize, vpsize) );
+        setViewportRegion(vp);
 
         SoGLRenderAction::apply(node);
 
         // Right View
         rotateCamera(SbRotation(SbVec3f(0,1,0), M_PI));
 
-        viewport->origin.setValue(width / 2 - vpsize, (height/2) - vpsize/2);
+        vp.setViewportPixels(SbVec2s(width / 2 - vpsize, (height/2) - vpsize/2), SbVec2s(vpsize, vpsize) );
+        setViewportRegion(vp);
 
         SoGLRenderAction::apply(node);
 
         camera->position = position;
         camera->orientation = orientation;
         camera->enableNotify(true);
-        viewport->enableNotify(true);
+
+        // Restore original viewport region
+        setViewportRegion(vpr);
     }
 
     void rotateCamera(const SbRotation &rot)
@@ -89,7 +92,6 @@ public:
     }
 protected:
     SoCamera * camera;
-    SoViewport * viewport;
 };
 
 class QxHoloViewer : public SoQtViewer
@@ -99,13 +101,12 @@ public:
     {
         root = new SoSeparator;
         camera = new SoPerspectiveCamera;
-        viewport = new SoViewport;
 
         sensor = new SoNodeSensor;
         sensor->setPriority(0);
         sensor->setFunction(cameraChangedCB, this);
 
-        setGLRenderAction(new SxGLHoloRenderAction(camera, viewport));
+        setGLRenderAction(new SxGLHoloRenderAction(camera));
     }
 
     ~QxHoloViewer()
@@ -118,7 +119,6 @@ public:
         HxViewer* hxviewer = theController->viewer(0);
 
         root->removeAllChildren();
-        root->addChild(viewport);
         root->addChild(camera);
         root->addChild(newScene);
 
@@ -190,7 +190,6 @@ public:
 private:
     McHandle<SoSeparator> root;
     McHandle<SoPerspectiveCamera> camera;
-    McHandle<SoViewport> viewport;
     McHandle<SoRotation> headlightRot;
 
     SoNodeSensor* sensor;
