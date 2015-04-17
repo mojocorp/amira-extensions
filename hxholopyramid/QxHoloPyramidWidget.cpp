@@ -85,20 +85,20 @@ public:
 
         rotate(r1*SbRotation(SbVec3f(0,1,0), M_PI/2));
 
-        adjustCameraClippingPlanes();
+        //adjustCameraClippingPlanes();
 
         viewport->origin.setValue(width / 2, (height/2) - vpsize/2);
 
-        getSceneManager()->render(false, false);
+        getSceneManager()->render(false, true);
 
         // Right View
         rotate(SbRotation(SbVec3f(0,1,0), M_PI));
 
-        adjustCameraClippingPlanes();
+        //adjustCameraClippingPlanes();
 
         viewport->origin.setValue(width / 2 - vpsize, (height/2) - vpsize/2);
 
-        getSceneManager()->render(false, false);
+        getSceneManager()->render(false, true);
 
         camera->enableNotify(true);
         headlightRot->enableNotify(true);
