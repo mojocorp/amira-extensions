@@ -7,7 +7,10 @@
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoViewport.h>
+#include <Inventor/nodes/SoRotation.h>
+#include <Inventor/nodes/SoDirectionalLight.h>
 #include <Inventor/sensors/SoNodeSensor.h>
+#include <Inventor/actions/SoSearchAction.h>
 
 #include <hxcore/HxController.h>
 #include <hxcore/HxViewer.h>
@@ -43,6 +46,17 @@ public:
         sensor->attach(hxviewer->getCamera());
 
         SoQtViewer::setSceneGraph(root);
+
+        SoSearchAction sa;
+        sa.setNode(getHeadlight());
+        sa.apply(getSceneRoot());
+        SoFullPath* fullPath = (SoFullPath*) sa.getPath();
+        if (fullPath) {
+            SoGroup *group = (SoGroup*) fullPath->getNodeFromTail(1);
+            headlightRot = (SoRotation*) group->getChild(0);
+            if (!headlightRot->isOfType(SoRotation::getClassTypeId()))
+                headlightRot = 0;
+        }
     }
 
     void actualRedraw()
@@ -52,13 +66,14 @@ public:
 
         int vpsize = height / 2;
 
-        SoCamera* camera = getCamera();
         camera->enableNotify(false);
-
+        headlightRot->enableNotify(false);
         viewport->enableNotify(false);
         viewport->size.setValue(vpsize, vpsize);
 
         // Front View
+        rotate(SbRotation(SbVec3f(0,0,1), M_PI));
+
         adjustCameraClippingPlanes();
 
         viewport->origin.setValue((width - vpsize) / 2, height - vpsize);
@@ -86,13 +101,12 @@ public:
         getSceneManager()->render(false, false);
 
         camera->enableNotify(true);
+        headlightRot->enableNotify(true);
         viewport->enableNotify(true);
     }
 
     void rotate(const SbRotation &rot)
     {
-        SoCamera* camera = getCamera();
-
         // get center of rotation
         float radius = camera->focalDistance.getValue();
 
@@ -107,6 +121,8 @@ public:
         // reposition camera to look at pt of interest
         camera->orientation.getValue().multVec(SbVec3f(0,0,-1), forward);
         camera->position = center - radius * forward;
+
+        headlightRot->rotation.setValue(camera->orientation.getValue());
     }
 
     // Callback that reports whenever the camera changes.
@@ -123,6 +139,7 @@ private:
     McHandle<SoSeparator> root;
     McHandle<SoPerspectiveCamera> camera;
     McHandle<SoViewport> viewport;
+    McHandle<SoRotation> headlightRot;
 
     SoNodeSensor* sensor;
 };
@@ -137,8 +154,6 @@ QxHoloPyramidWidget::QxHoloPyramidWidget(QWidget* parent)
     QHBoxLayout* layout = new QHBoxLayout(this);
     layout->setMargin(0);
     layout->addWidget(viewer->getWidget());
-
-    
 
     viewer->setSceneGraph(theController->viewer(0)->getSceneGraph());
 }

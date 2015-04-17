@@ -31,7 +31,9 @@ HxHoloPyramid::~HxHoloPyramid()
 
 void HxHoloPyramid::update()
 {
-
+    if (portDisplay.isNew()) {
+        portOptions.setValue(0, 0);
+    }
 }
 
 void HxHoloPyramid::compute()
