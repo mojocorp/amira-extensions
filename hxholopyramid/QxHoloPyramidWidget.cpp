@@ -18,13 +18,25 @@
 class SxGLHoloRenderAction : public SoGLRenderAction
 {
 public:
-    SxGLHoloRenderAction(SoCamera * cam) 
-        : SoGLRenderAction(SbVec2s(1,1)), camera(cam)
+    SxGLHoloRenderAction(SoQtViewer * v) 
+        : SoGLRenderAction(SbVec2s(1,1)), viewer(v), headlightRot(NULL)
     {
+
     }
 
     virtual void apply(SoNode* node)
     {
+        SoSearchAction sa;
+        sa.setNode(viewer->getHeadlight());
+        sa.apply(viewer->getSceneRoot());
+        SoFullPath* fullPath = (SoFullPath*) sa.getPath();
+        if (fullPath) {
+            SoGroup *group = (SoGroup*) fullPath->getNodeFromTail(1);
+            headlightRot = (SoRotation*) group->getChild(0);
+            if (!headlightRot->isOfType(SoRotation::getClassTypeId()))
+                headlightRot = 0;
+        }
+
         const SbViewportRegion vpr = getViewportRegion();
         const SbVec2s & size = vpr.getViewportSizePixels();
 
@@ -32,6 +44,8 @@ public:
         const int height = size[1];
 
         const int vpsize = height / 2;
+
+        SoCamera * camera = viewer->getCamera();
 
         SbVec3f position = camera->position.getValue();
         SbRotation orientation = camera->orientation.getValue();
@@ -75,6 +89,8 @@ public:
 
     void rotateCamera(const SbRotation &rot)
     {
+        SoCamera * camera = viewer->getCamera();
+
         // get center of rotation
         const float radius = camera->focalDistance.getValue();
 
@@ -89,9 +105,12 @@ public:
         // reposition camera to look at pt of interest
         camera->orientation.getValue().multVec(SbVec3f(0,0,-1), forward);
         camera->position = center - radius * forward;
+
+        headlightRot->rotation.setValue(camera->orientation.getValue());
     }
 protected:
-    SoCamera * camera;
+    SoQtViewer * viewer;
+    McHandle<SoRotation> headlightRot;
 };
 
 class QxHoloViewer : public SoQtViewer
@@ -99,43 +118,19 @@ class QxHoloViewer : public SoQtViewer
 public:
     QxHoloViewer(QWidget* parent) : SoQtViewer(parent, "holoviewer", true, SoQtViewer::BROWSER, true) 
     {
-        root = new SoSeparator;
-        camera = new SoPerspectiveCamera;
+        HxViewer* hxviewer = theController->viewer(0);
 
         sensor = new SoNodeSensor;
         sensor->setPriority(0);
         sensor->setFunction(cameraChangedCB, this);
+        sensor->attach(hxviewer->getCamera());
 
-        setGLRenderAction(new SxGLHoloRenderAction(camera));
+        setGLRenderAction(new SxGLHoloRenderAction(this));
     }
 
     ~QxHoloViewer()
     {
         delete sensor;
-    }
-
-    virtual void setSceneGraph (SoNode *newScene)
-    {
-        HxViewer* hxviewer = theController->viewer(0);
-
-        root->removeAllChildren();
-        root->addChild(camera);
-        root->addChild(newScene);
-
-        sensor->attach(hxviewer->getCamera());
-
-        SoQtViewer::setSceneGraph(root);
-
-        SoSearchAction sa;
-        sa.setNode(getHeadlight());
-        sa.apply(getSceneRoot());
-        SoFullPath* fullPath = (SoFullPath*) sa.getPath();
-        if (fullPath) {
-            SoGroup *group = (SoGroup*) fullPath->getNodeFromTail(1);
-            headlightRot = (SoRotation*) group->getChild(0);
-            if (!headlightRot->isOfType(SoRotation::getClassTypeId()))
-                headlightRot = 0;
-        }
     }
 
     // Callback that reports whenever the camera changes.
@@ -145,19 +140,19 @@ public:
 
         HxViewer* hxviewer = theController->viewer(0);
 
-        _this->camera->copyFieldValues(hxviewer->getCamera());
-        _this->headlightRot->rotation.setValue(_this->camera->orientation.getValue());
+        _this->getCamera()->copyFieldValues(hxviewer->getCamera());
     }
 
     /// Override original method since it seems to adjust the clipping planes in a weird manner.
     /// Maybe using a screen-space projection or whatever.
     virtual void adjustCameraClippingPlanes()
     {
+        SoCamera * camera = getCamera();
         if (!camera)
             return;
 
         SoGetBoundingBoxAction clipbox_action(getViewportRegion());
-        clipbox_action.apply(root);
+        clipbox_action.apply(getSceneRoot());
 
         SbBox3f bbox = clipbox_action.getBoundingBox();
 
@@ -188,10 +183,6 @@ public:
     }
 
 private:
-    McHandle<SoSeparator> root;
-    McHandle<SoPerspectiveCamera> camera;
-    McHandle<SoRotation> headlightRot;
-
     SoNodeSensor* sensor;
 };
 
