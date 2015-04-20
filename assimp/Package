@@ -1,7 +1,5 @@
 set PACKAGE {assimp}
 
-set LABELS {experimental}
-
 set LIBS { z }
 
 set DEFINES {
