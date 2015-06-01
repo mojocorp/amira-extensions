@@ -43,7 +43,7 @@ public:
         const int width = size[0];
         const int height = size[1];
 
-        const int vpsize = height / 2;
+        const int vpsize = width / 2;
 
         SoCamera * camera = viewer->getCamera();
 
@@ -56,25 +56,25 @@ public:
         rotateCamera(SbRotation(SbVec3f(0,0,1), M_PI));
 
         SbViewportRegion vp;
-        vp.setViewportPixels(SbVec2s((width - vpsize) / 2, height - vpsize), SbVec2s(vpsize, vpsize) );
+        vp.setViewportPixels(SbVec2s(0, height-width/2), SbVec2s(width, width/2) );
         setViewportRegion(vp);
 
         SoGLRenderAction::apply(node);
 
         // Left View
-        SbRotation r1(SbVec3f(0,0,1), M_PI/2);
+        SbRotation r1(SbVec3f(0,0,1), -M_PI/2);
 
-        rotateCamera(r1*SbRotation(SbVec3f(0,1,0), M_PI/2));
-
-        vp.setViewportPixels(SbVec2s(width / 2, (height/2) - vpsize/2), SbVec2s(vpsize, vpsize) );
+        rotateCamera(r1*SbRotation(SbVec3f(0,1,0), -M_PI/2));
+        
+        vp.setViewportPixels(SbVec2s(0, height-width), SbVec2s(width/2, width) );
         setViewportRegion(vp);
 
         SoGLRenderAction::apply(node);
 
         // Right View
-        rotateCamera(SbRotation(SbVec3f(0,1,0), M_PI));
+        rotateCamera(SbRotation(SbVec3f(0,1,0), -M_PI));
 
-        vp.setViewportPixels(SbVec2s(width / 2 - vpsize, (height/2) - vpsize/2), SbVec2s(vpsize, vpsize) );
+        vp.setViewportPixels(SbVec2s(width/2, height-width), SbVec2s(width/2, width) );
         setViewportRegion(vp);
 
         SoGLRenderAction::apply(node);
