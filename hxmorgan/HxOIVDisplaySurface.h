@@ -9,7 +9,7 @@
 class SoSeparator;
 class SoMaterial;
 class SoVertexProperty;
-class SoIndexedFaceSet;
+class SoIndexedTriangleSet;
 class SoTexture2;
 
 class HXMORGAN_API HxOIVDisplaySurface : public HxModule
@@ -36,5 +36,5 @@ private:
     SoMaterial* m_p_material;
     SoTexture2* m_p_texture;
     SoVertexProperty* m_p_vertexProperty;
-    SoIndexedFaceSet* m_p_faceSet;
+    SoIndexedTriangleSet* m_p_faceSet;
 };

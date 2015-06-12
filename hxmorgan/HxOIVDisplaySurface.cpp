@@ -10,7 +10,7 @@
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoCoordinate3.h>
-#include <Inventor/nodes/SoIndexedFaceSet.h>
+#include <Inventor/nodes/SoIndexedTriangleSet.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoMaterialBinding.h>
 #include <Inventor/nodes/SoTexture2.h>
@@ -25,8 +25,6 @@ HxOIVDisplaySurface::HxOIVDisplaySurface() :
 {
     portEmissiveColor.setMinMax(0, 255);
     portEmissiveColor.setValue(0);
-
-    SoDB::setNumRenderCaches(0) ;
 
     m_p_root = new SoSeparator;
     m_p_root->ref();
@@ -56,7 +54,7 @@ HxOIVDisplaySurface::HxOIVDisplaySurface() :
     
     m_p_vertexProperty = new SoVertexProperty;
 
-    m_p_faceSet = new SoIndexedFaceSet;
+    m_p_faceSet = new SoIndexedTriangleSet;
     m_p_faceSet->vertexProperty.setValue(m_p_vertexProperty);
 
     m_p_root->addChild(m_p_faceSet);
@@ -168,11 +166,11 @@ void HxOIVDisplaySurface::compute()
             //////////////////////////////////////////////////////
             // Coords Indexes
             //////////////////////////////////////////////////////
-            m_p_faceSet->coordIndex.setNum(4*surface->triangles.size());
+            m_p_faceSet->coordIndex.setNum(3*surface->triangles.size());
             m_p_faceSet->materialIndex.setNum(surface->triangles.size());
 
             int32_t* faceidx = m_p_faceSet->coordIndex.startEditing();
-            int32_t* matidx = m_p_faceSet->materialIndex.startEditing();
+            //int32_t* matidx = m_p_faceSet->materialIndex.startEditing();
             for (int i=0; i<surface->triangles.size(); i++)
             {
                 const Surface::Triangle & tri = surface->triangles[i];
@@ -180,12 +178,12 @@ void HxOIVDisplaySurface::compute()
                 *(faceidx++) = tri.points[0];
                 *(faceidx++) = tri.points[1];
                 *(faceidx++) = tri.points[2];
-                *(faceidx++) = -1;
+                //*(faceidx++) = -1;
 
-                *(matidx++) = tri.patch;
+                //*(matidx++) = tri.patch;
             }
             m_p_faceSet->coordIndex.finishEditing();
-            m_p_faceSet->materialIndex.finishEditing();
+            //m_p_faceSet->materialIndex.finishEditing();
             m_p_root->enableNotify(true);
             m_p_root->touch();
             showGeom(m_p_root);
