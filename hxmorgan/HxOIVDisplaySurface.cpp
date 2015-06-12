@@ -26,8 +26,17 @@ HxOIVDisplaySurface::HxOIVDisplaySurface() :
     portEmissiveColor.setMinMax(0, 255);
     portEmissiveColor.setValue(0);
 
+    SoDB::setNumRenderCaches(0) ;
+
     m_p_root = new SoSeparator;
     m_p_root->ref();
+
+#if 1
+    SoShapeHints* shapeHints = new SoShapeHints;
+    shapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+    shapeHints->useVBO = TRUE;
+    m_p_root->addChild(shapeHints);
+#endif  
 
     m_p_material = new SoMaterial;
     //m_p_material->ambientColor.setValue(SbColor(0.19225, 0.19225, 0.19225));
@@ -137,33 +146,17 @@ void HxOIVDisplaySurface::compute()
             }
             m_p_material->diffuseColor.finishEditing();
 #endif
+            m_p_root->enableNotify(false);
+
             //////////////////////////////////////////////////////
             // Vertices
             //////////////////////////////////////////////////////
-            m_p_vertexProperty->vertex.setNum(surface->points.size());
-
-            SbVec3f* coords = m_p_vertexProperty->vertex.startEditing();
-            for (int i=0; i<surface->points.size(); i++)
-            {
-                const McVec3f & pt = surface->points[i];
-
-                coords[i].setValue(pt.x, pt.y, pt.z); 
-            }
-            m_p_vertexProperty->vertex.finishEditing();
+            m_p_vertexProperty->vertex.setValues(0, surface->points.size(), (const SbVec3f *)surface->points.dataPtr());
 
             //////////////////////////////////////////////////////
             // Normals
             //////////////////////////////////////////////////////
-            m_p_vertexProperty->normal.setNum(surface->normals.size());
-
-            SbVec3f* normal = m_p_vertexProperty->normal.startEditing();
-            for (int i=0; i<surface->normals.size(); i++)
-            {
-                const McVec3f & n = surface->normals[i];
-
-                normal[i].setValue(n.x, n.y, n.z); 
-            }
-            m_p_vertexProperty->normal.finishEditing();
+            m_p_vertexProperty->normal.setValues(0, surface->normals.size(), (const SbVec3f *)surface->normals.dataPtr());
 
             if (surface->normals.size() == surface->triangles.size())
                 m_p_vertexProperty->normalBinding = SoVertexProperty::PER_FACE_INDEXED;
@@ -184,16 +177,17 @@ void HxOIVDisplaySurface::compute()
             {
                 const Surface::Triangle & tri = surface->triangles[i];
 
-                faceidx[4*i+0] = tri.points[0];
-                faceidx[4*i+1] = tri.points[1];
-                faceidx[4*i+2] = tri.points[2];
-                faceidx[4*i+3] = -1;
+                *(faceidx++) = tri.points[0];
+                *(faceidx++) = tri.points[1];
+                *(faceidx++) = tri.points[2];
+                *(faceidx++) = -1;
 
-                matidx[i] = tri.patch;
+                *(matidx++) = tri.patch;
             }
             m_p_faceSet->coordIndex.finishEditing();
             m_p_faceSet->materialIndex.finishEditing();
-
+            m_p_root->enableNotify(true);
+            m_p_root->touch();
             showGeom(m_p_root);
         }
         else
