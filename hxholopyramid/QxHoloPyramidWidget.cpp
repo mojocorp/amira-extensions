@@ -26,15 +26,17 @@ public:
 
     virtual void apply(SoNode* node)
     {
-        SoSearchAction sa;
-        sa.setNode(viewer->getHeadlight());
-        sa.apply(viewer->getSceneRoot());
-        SoFullPath* fullPath = (SoFullPath*) sa.getPath();
-        if (fullPath) {
-            SoGroup *group = (SoGroup*) fullPath->getNodeFromTail(1);
-            headlightRot = (SoRotation*) group->getChild(0);
-            if (!headlightRot->isOfType(SoRotation::getClassTypeId()))
-                headlightRot = 0;
+        if (!headlightRot) {
+            SoSearchAction sa;
+            sa.setNode(viewer->getHeadlight());
+            sa.apply(viewer->getSceneRoot());
+            SoFullPath* fullPath = (SoFullPath*) sa.getPath();
+            if (fullPath) {
+                SoGroup *group = (SoGroup*) fullPath->getNodeFromTail(1);
+                headlightRot = (SoRotation*) group->getChild(0);
+                if (!headlightRot->isOfType(SoRotation::getClassTypeId()))
+                    headlightRot = 0;
+            }
         }
 
         const SbViewportRegion vpr = getViewportRegion();
@@ -47,8 +49,10 @@ public:
 
         SoCamera * camera = viewer->getCamera();
 
-        SbVec3f position = camera->position.getValue();
-        SbRotation orientation = camera->orientation.getValue();
+        const SbVec3f position = camera->position.getValue();
+        const SbRotation orientation = camera->orientation.getValue();
+        const float nearplane = camera->nearDistance.getValue();
+        const float farplane = camera->farDistance.getValue();
 
         camera->enableNotify(false);
 
@@ -79,6 +83,8 @@ public:
 
         SoGLRenderAction::apply(node);
 
+        setViewportRegion(vpr);
+
         camera->position = position;
         camera->orientation = orientation;
         camera->enableNotify(true);
@@ -106,7 +112,72 @@ public:
         camera->orientation.getValue().multVec(SbVec3f(0,0,-1), forward);
         camera->position = center - radius * forward;
 
-        headlightRot->rotation.setValue(camera->orientation.getValue());
+        headlightRot->rotation = camera->orientation.getValue();
+
+        // Adjust clipping planes
+        SoGetBoundingBoxAction clipbox_action(getViewportRegion());
+        clipbox_action.apply(viewer->getSceneRoot());
+
+        SbBox3f bbox = clipbox_action.getBoundingBox();
+
+        if (bbox.isEmpty())
+            return;
+
+        SbSphere bSphere;
+        bSphere.circumscribe(bbox);
+
+        float denumerator = forward.length();
+        float numerator = (bSphere.getCenter() - camera->position.getValue()).dot(forward);
+        float distToCenter = (forward * (numerator / denumerator)).length();
+
+        float farplane = distToCenter + bSphere.getRadius();
+
+        // if scene is behind the camera, don't change the planes
+        if (farplane < 0) return;
+
+        float nearplane = distToCenter - bSphere.getRadius();
+
+        if (nearplane < (0.001 * farplane)) nearplane = 0.001 * farplane;
+
+        camera->nearDistance = nearplane;
+        camera->farDistance = farplane;
+    }
+
+     virtual void adjustCameraClippingPlanes()
+    {
+        SoCamera * camera = viewer->getCamera();
+        if (!camera)
+            return;
+
+        SoGetBoundingBoxAction clipbox_action(getViewportRegion());
+        clipbox_action.apply(viewer->getSceneRoot());
+
+        SbBox3f bbox = clipbox_action.getBoundingBox();
+
+        if (bbox.isEmpty())
+            return;
+
+        SbSphere bSphere;
+        bSphere.circumscribe(bbox);
+
+        SbVec3f forward;
+        camera->orientation.getValue().multVec(SbVec3f(0,0,-1), forward);
+
+        float denumerator = forward.length();
+        float numerator = (bSphere.getCenter() - camera->position.getValue()).dot(forward);
+        float distToCenter = (forward * (numerator / denumerator)).length();
+
+        float farplane = distToCenter + bSphere.getRadius();
+
+        // if scene is behind the camera, don't change the planes
+        if (farplane < 0) return;
+
+        float nearplane = distToCenter - bSphere.getRadius();
+
+        if (nearplane < (0.001 * farplane)) nearplane = 0.001 * farplane;
+
+        camera->nearDistance = nearplane;
+        camera->farDistance = farplane;
     }
 protected:
     SoQtViewer * viewer;

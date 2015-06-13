@@ -8,10 +8,10 @@
 
 class SoSeparator;
 class SoMaterial;
-class SoBBox;
-class SoVertexProperty;
-class SoIndexedTriangleSet;
 class SoTexture2;
+class SoBBox;
+class SoGLBufferObject;
+class SoBufferedShape;
 
 class HXMORGAN_API HxOIVDisplaySurface : public HxModule
 {
@@ -37,6 +37,9 @@ private:
     SoMaterial* m_p_material;
     SoTexture2* m_p_texture;
     SoBBox* m_p_boundingBoxNode;
-    SoVertexProperty* m_p_vertexProperty;
-    SoIndexedTriangleSet* m_p_faceSet;
+    SoGLBufferObject* m_p_vertices;
+    SoGLBufferObject* m_p_texcoords;
+    SoGLBufferObject* m_p_normals;
+    SoGLBufferObject* m_p_indices;
+    SoBufferedShape* m_p_shape;
 };
