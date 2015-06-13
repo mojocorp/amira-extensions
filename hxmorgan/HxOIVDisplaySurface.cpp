@@ -9,7 +9,7 @@
 
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoMaterial.h>
-#include <Inventor/nodes/SoCoordinate3.h>
+#include <Inventor/nodes/SoBBox.h>
 #include <Inventor/nodes/SoIndexedTriangleSet.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoMaterialBinding.h>
@@ -28,14 +28,12 @@ HxOIVDisplaySurface::HxOIVDisplaySurface() :
 
     m_p_root = new SoSeparator;
     m_p_root->ref();
-
-#if 1
+    /*
     SoShapeHints* shapeHints = new SoShapeHints;
     shapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
-    shapeHints->useVBO = TRUE;
+    //shapeHints->useVBO = TRUE;
     m_p_root->addChild(shapeHints);
-#endif  
-
+    */
     m_p_material = new SoMaterial;
     //m_p_material->ambientColor.setValue(SbColor(0.19225, 0.19225, 0.19225));
     //m_p_material->diffuseColor.setValue(SbColor(255.f/250.f, 255.f/224.f, 255.f/195.f));
@@ -44,14 +42,13 @@ HxOIVDisplaySurface::HxOIVDisplaySurface() :
     m_p_root->addChild(m_p_material);
     
     m_p_texture = new SoTexture2;
-    //m_p_texture->internalFormat = 
     m_p_texture->model = SoTexture2::MODULATE;
     m_p_root->addChild(m_p_texture);
 
-    SoMaterialBinding* materialBinding = new SoMaterialBinding;
-    materialBinding->value = SoMaterialBinding::PER_FACE_INDEXED;
-    m_p_root->addChild(materialBinding);
-    
+    m_p_boundingBoxNode = new SoBBox;
+    m_p_boundingBoxNode->mode.setValue(SoBBox::USER_DEFINED);
+    m_p_root->addChild(m_p_boundingBoxNode);
+
     m_p_vertexProperty = new SoVertexProperty;
 
     m_p_faceSet = new SoIndexedTriangleSet;
@@ -112,65 +109,31 @@ void HxOIVDisplaySurface::compute()
         }
         m_p_vertexProperty->texCoord.finishEditing();
     }
-
-    if (portData.isNew())
+    if (portData.isNew(HxData::NEW_SOURCE)) 
     {
         HxSurface* surface = hxconnection_cast<HxSurface>(portData);
         if (surface)
         {
-#if 0
+            surface->computeNormalsPerVertexIndexed();
             //////////////////////////////////////////////////////
-            // Materials
+            // Bounding Box
             //////////////////////////////////////////////////////
-            const HxParamBundle* materials = surface->parameters.materials();
-            const int nMaterials = materials->nBundles();
-
-            m_p_material->diffuseColor.setNum(nMaterials);
-            SbColor * matptr = m_p_material->diffuseColor.startEditing();
-
-            for (int k=0; k<surface->patches.size(); k++) 
-            {
-                const Surface::Patch* patch = surface->patches[k];
-
-                int innerRegion = patch->innerRegion;
-                if (innerRegion < nMaterials) 
-                {
-                    const HxParamBundle* b = materials->bundle(innerRegion);
-                    SbColor color;
-                    if (!b->findColor(&color[0]))
-                        color = matDatabase->getColor(qPrintable(b->name()));
-                    matptr[k] = color;
-                }
-            }
-            m_p_material->diffuseColor.finishEditing();
-#endif
-            m_p_root->enableNotify(false);
-
-            //////////////////////////////////////////////////////
-            // Vertices
-            //////////////////////////////////////////////////////
-            m_p_vertexProperty->vertex.setValues(0, surface->points.size(), (const SbVec3f *)surface->points.dataPtr());
+            float bbox[6];
+            surface->getBoundingBox(bbox);
+            m_p_boundingBoxNode->boundingBox.setValue(bbox[0], bbox[2], bbox[4], bbox[1], bbox[3], bbox[5]);
 
             //////////////////////////////////////////////////////
             // Normals
             //////////////////////////////////////////////////////
             m_p_vertexProperty->normal.setValues(0, surface->normals.size(), (const SbVec3f *)surface->normals.dataPtr());
-
-            if (surface->normals.size() == surface->triangles.size())
-                m_p_vertexProperty->normalBinding = SoVertexProperty::PER_FACE_INDEXED;
-            else
-                m_p_vertexProperty->normalBinding = SoVertexProperty::PER_VERTEX_INDEXED;
-
-            //theMsg->printf("vertices: %d normals: %d", surface->points.size(), surface->normals.size());
+            m_p_vertexProperty->normalBinding = SoVertexProperty::PER_VERTEX_INDEXED;
 
             //////////////////////////////////////////////////////
             // Coords Indexes
             //////////////////////////////////////////////////////
             m_p_faceSet->coordIndex.setNum(3*surface->triangles.size());
-            m_p_faceSet->materialIndex.setNum(surface->triangles.size());
 
             int32_t* faceidx = m_p_faceSet->coordIndex.startEditing();
-            //int32_t* matidx = m_p_faceSet->materialIndex.startEditing();
             for (int i=0; i<surface->triangles.size(); i++)
             {
                 const Surface::Triangle & tri = surface->triangles[i];
@@ -178,14 +141,9 @@ void HxOIVDisplaySurface::compute()
                 *(faceidx++) = tri.points[0];
                 *(faceidx++) = tri.points[1];
                 *(faceidx++) = tri.points[2];
-                //*(faceidx++) = -1;
-
-                //*(matidx++) = tri.patch;
             }
             m_p_faceSet->coordIndex.finishEditing();
-            //m_p_faceSet->materialIndex.finishEditing();
-            m_p_root->enableNotify(true);
-            m_p_root->touch();
+
             showGeom(m_p_root);
         }
         else
@@ -194,6 +152,18 @@ void HxOIVDisplaySurface::compute()
 
             m_p_vertexProperty->vertex.setNum(0);
             m_p_faceSet->coordIndex.setNum(0);
+        }
+    }
+
+    if (portData.isNew())
+    {
+        HxSurface* surface = hxconnection_cast<HxSurface>(portData);
+        if (surface)
+        {
+            //////////////////////////////////////////////////////
+            // Vertices
+            //////////////////////////////////////////////////////
+            m_p_vertexProperty->vertex.setValues(0, surface->points.size(), (const SbVec3f *)surface->points.dataPtr());
         }
     }
 }

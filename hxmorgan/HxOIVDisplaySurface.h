@@ -8,6 +8,7 @@
 
 class SoSeparator;
 class SoMaterial;
+class SoBBox;
 class SoVertexProperty;
 class SoIndexedTriangleSet;
 class SoTexture2;
@@ -35,6 +36,7 @@ private:
     SoSeparator* m_p_root;
     SoMaterial* m_p_material;
     SoTexture2* m_p_texture;
+    SoBBox* m_p_boundingBoxNode;
     SoVertexProperty* m_p_vertexProperty;
     SoIndexedTriangleSet* m_p_faceSet;
 };
