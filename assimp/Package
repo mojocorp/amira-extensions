@@ -7,7 +7,7 @@ set DEFINES {
     ASSIMP_BUILD_DLL_EXPORT
 }
 
-set INCLUDES { ../../amira/zlib }
+set INCLUDES { ../../core/zlib/internal }
 
 set INCSRCINTERN {
     include/assimp/*.h

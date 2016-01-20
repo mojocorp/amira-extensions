@@ -2,7 +2,7 @@
 
 #include <QDesktopWidget>
 
-#include <hxcore/HxMain.h>
+#include <hxcore/HxApplication.h>
 #include <hxholopyramid/QxHoloPyramidWidget.h>
 
 HX_INIT_CLASS(HxHoloPyramid, HxModule);
@@ -10,7 +10,7 @@ HX_INIT_CLASS(HxHoloPyramid, HxModule);
 HxHoloPyramid::HxHoloPyramid()
    : HxModule(),
    portDisplay(this, "display", tr("Display")),
-   portOptions(this, "options"),
+   portOptions(this, "options", tr("Options")),
    m_viewer(new QxHoloPyramidWidget(theMainWindow))
 {
     m_viewer->resize(800, 600);
