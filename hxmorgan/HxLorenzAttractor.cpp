@@ -1,6 +1,6 @@
 #include "HxLorenzAttractor.h"
 
-#include <hxlines/HxLineSet.h>
+#include <hxlines/internal/HxLineSet.h>
 
 HX_INIT_CLASS(HxLorenzAttractor,HxCompModule);
 

@@ -5,7 +5,7 @@
 #include <hxcore/HxMessage.h>
 #include <hxsurface/HxSurface.h>
 #include <hxfield/HxUniformColorField3.h>
-#include <hxsurface/HxSurfaceComplexScalarField.h>
+#include <hxsurface/internal/HxSurfaceComplexScalarField.h>
 
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoBBox.h>
@@ -13,6 +13,7 @@
 #include <Inventor/nodes/SoTexture2.h>
 #include <Inventor/nodes/SoBufferedShape.h>
 #include <Inventor/devices/SoCpuBufferObject.h>
+#include <Inventor/devices/SoGLBufferObject.h>
 
 HX_INIT_CLASS(HxOIVDisplaySurface,HxModule)
 
@@ -89,8 +90,8 @@ void HxOIVDisplaySurface::compute()
     const HxUniformColorField3* colorfield = hxconnection_cast<HxUniformColorField3>(portTexture);
     if (portTexture.isNew() && colorfield)
     {
-        const int* dims = colorfield->lattice.dimsInt();
-        const unsigned char* srcPtr= (unsigned char*) colorfield->lattice.dataPtr();
+        const McDim3l& dims = colorfield->lattice().getDims();
+        const unsigned char* srcPtr= (unsigned char*) colorfield->lattice().dataPtr();
         m_p_texture->image.setValue( SbVec2i32(dims[0], dims[1]), 4, SoSFImage::UNSIGNED_BYTE, srcPtr);
     }
 
@@ -121,8 +122,7 @@ void HxOIVDisplaySurface::compute()
             //////////////////////////////////////////////////////
             // Bounding Box
             //////////////////////////////////////////////////////
-            float bbox[6];
-            surface->getBoundingBox(bbox);
+            const McBox3f& bbox = surface->getBoundingBox();
             m_p_boundingBoxNode->boundingBox.setValue(bbox[0], bbox[2], bbox[4], bbox[1], bbox[3], bbox[5]);
 
             //////////////////////////////////////////////////////
@@ -143,11 +143,11 @@ void HxOIVDisplaySurface::compute()
             // Indices
             //////////////////////////////////////////////////////
             m_p_indices->setTarget(SoGLBufferObject::ELEMENT_ARRAY_BUFFER);
-            m_p_indices->setSize(3 * surface->triangles.size() * sizeof(unsigned int));
+            m_p_indices->setSize(3 * surface->triangles().size() * sizeof(unsigned int));
             unsigned int* indicesPtr = (unsigned int *)m_p_indices->map( SoBufferObject::READ_WRITE );
-            for (int i=0; i<surface->triangles.size(); i++)
+            for (int i=0; i<surface->triangles().size(); i++)
             {
-                const Surface::Triangle & tri = surface->triangles[i];
+                const Surface::Triangle & tri = surface->triangles()[i];
 
                 *(indicesPtr++) = tri.points[0];
                 *(indicesPtr++) = tri.points[1];
@@ -155,7 +155,7 @@ void HxOIVDisplaySurface::compute()
             }
             m_p_indices->unmap();
 
-            m_p_shape->numVertices.set1Value( 0, 3 * surface->triangles.size() );
+            m_p_shape->numVertices.set1Value( 0, 3 * surface->triangles().size() );
 
             showGeom(m_p_root);
         }
@@ -175,13 +175,14 @@ void HxOIVDisplaySurface::compute()
             //////////////////////////////////////////////////////
             m_p_vertices->setTarget(SoGLBufferObject::ARRAY_BUFFER);
             //m_p_vertices->bind();
-            m_p_vertices->setSize( surface->points.size() * sizeof(SbVec3f) );
+            m_p_vertices->setSize( surface->points().size() * sizeof(SbVec3f) );
             float* verticesPtr = (float *)m_p_vertices->map( SoBufferObject::READ_WRITE );
-            for (int i=0; i<surface->points.size(); i++)
+            for (int i=0; i<surface->points().size(); i++)
             {
-                *(verticesPtr++) = surface->points[i][0];
-                *(verticesPtr++) = surface->points[i][1];
-                *(verticesPtr++) = surface->points[i][2];
+				const McVec3f& point = surface->points()[i];
+                *(verticesPtr++) = point[0];
+                *(verticesPtr++) = point[1];
+                *(verticesPtr++) = point[2];
             }
             m_p_vertices->unmap();
             //m_p_vertices->unbind();

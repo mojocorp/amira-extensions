@@ -80,7 +80,7 @@ void HxGLSLVertexView::update()
         HxVertexSet* data = hxconnection_cast<HxVertexSet>(portData);
         if (data)
         {
-            const McVec3f size = data->getBoundingBoxSize();
+            const McVec3f size = data->getBoundingBox().getSize();
 
             float min_size = MC_MIN3(size[0], size[1],size[2]) / 30.0f;
 
@@ -99,7 +99,7 @@ void HxGLSLVertexView::compute()
         
         if (data)
         {
-            m_p_vertexProperty->vertex.setValuesPointer(data->getNumPoints(), (SbVec3f*)data->getCoords());
+            m_p_vertexProperty->vertex.setValuesPointer(data->getCoords().size(), (SbVec3f*)data->getCoords().dataPtr());
 
             showGeom(m_p_root);
         }
@@ -119,7 +119,7 @@ void HxGLSLVertexView::compute()
 
 void HxGLSLVertexView::setRenderMode(DrawStyles mode)
 {
-    const SbString shaderPath = SbString(HxResource::getRootDir()) + "/share/shaders/hxglslvertexview/";
+    const SbString shaderPath(qPrintable(HxResource::getRootDir() + "/share/shaders/hxglslvertexview/"));
     
     m_p_geometryshader->parameter.removeAllShaderParameters();
 
