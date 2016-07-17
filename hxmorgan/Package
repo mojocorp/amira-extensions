@@ -1,6 +1,6 @@
 set PACKAGE {hxmorgan}
 
-set LIBS {hxsurface hxcore hxfield hxlines amiramesh mclib qt oiv hxcluster}
+set LIBS {hxcore hxfield hxlines amiramesh mclib qt oiv hxcluster}
 
 set SHARE {
     share/resources/hxmorgan.rc

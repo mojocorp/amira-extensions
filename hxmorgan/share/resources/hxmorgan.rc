@@ -12,12 +12,6 @@ module -name "GLSLVertexView" \
     -category "Morgan" \
     -package "hxmorgan"
 
-module -name "OIV Surface" \
-    -primary "HxSurface" \
-    -class "HxOIVDisplaySurface" \
-    -category "Morgan" \
-    -package "hxmorgan"
-
 module -name "ArithmeticJS" \
     -primary "HxUniformScalarField3" \
     -class "HxArithmeticJS" \

@@ -6,3 +6,8 @@ module -name "Holo Pyramid" \
     -category "Display" \
     -package "hxholopyramid"
 
+module -name "OIV Surface" \
+    -primary "HxSurface" \
+    -class "HxOIVDisplaySurface" \
+    -category "Display" \
+    -package "hxholopyramid"

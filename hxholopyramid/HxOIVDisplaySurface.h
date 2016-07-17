@@ -1,6 +1,6 @@
 #pragma once
 
-#include <hxmorgan/api.h>
+#include <hxholopyramid/api.h>
 
 #include <hxcore/HxModule.h>
 #include <hxcore/HxPortRadioBox.h>
@@ -13,7 +13,7 @@ class SoBBox;
 class SoGLBufferObject;
 class SoBufferedShape;
 
-class HXMORGAN_API HxOIVDisplaySurface : public HxModule
+class HXHOLOPYRAMID_API HxOIVDisplaySurface : public HxModule
 {
     HX_HEADER(HxOIVDisplaySurface);
 public:
