@@ -17,3 +17,9 @@ module -name "ArithmeticJS" \
     -class "HxArithmeticJS" \
     -category "Morgan" \
     -package "hxmorgan"
+
+module - name "Create Tiles" \
+	- primary "HxUniformScalarField3" \
+	- class "HxCreateTiles" \
+	- category "Morgan" \
+	- package "hxmorgan"
