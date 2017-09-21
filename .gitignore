@@ -13,5 +13,7 @@ Makefile
 *.sln
 *.user
 *.pdb
+*.sdf
+*.opensdf
 Thumbs.db
 .DS_Store
