@@ -7,11 +7,11 @@
 #include <hxcore/HxPortDoIt.h>
 
 /// Converts a vertex set into a cluster object.
-class HXMORGAN_API HxLorenzAttractor : public HxCompModule 
+class HXMORGAN_API HxLorenzAttractor : public HxCompModule
 {
     HX_HEADER(HxLorenzAttractor);
 
-  public:
+public:
     /// Number of lineset points.
     HxPortIntSlider portNumPoints;
 

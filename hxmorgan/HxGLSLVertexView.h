@@ -18,13 +18,13 @@ class SoGeometryShader;
 class SoFragmentShader;
 
 /// Vertex View that use shaders.
-class HXMORGAN_API HxGLSLVertexView : public HxModule 
+class HXMORGAN_API HxGLSLVertexView : public HxModule
 {
-  HX_HEADER(HxGLSLVertexView);
-  
-  public:
+    HX_HEADER(HxGLSLVertexView);
+
+public:
     /// Determines the way points are shown.
-    enum DrawStyles 
+    enum DrawStyles
     {
         POINTS,
         PLATES,
@@ -43,17 +43,17 @@ class HXMORGAN_API HxGLSLVertexView : public HxModule
     /// Compute method.
     virtual void compute();
 
-  protected:
-
+protected:
     virtual void setRenderMode(DrawStyles mode);
-  private:  
-    McHandle<SoSeparator>           m_p_root;
-    SoMaterial*                     m_p_material;
-    SoShaderProgram*                m_p_shaderProgram;
-    SoVertexProperty*               m_p_vertexProperty;
-    SoVertexShader*                 m_p_vertexShader;
-    SoGeometryShader*               m_p_geometryshader;
-    SoFragmentShader*               m_p_fragmentshader;
 
-    McHandle<SoShaderParameter1f>   m_p_sphereSizeParameter;
+private:
+    McHandle<SoSeparator> m_p_root;
+    SoMaterial* m_p_material;
+    SoShaderProgram* m_p_shaderProgram;
+    SoVertexProperty* m_p_vertexProperty;
+    SoVertexShader* m_p_vertexShader;
+    SoGeometryShader* m_p_geometryshader;
+    SoFragmentShader* m_p_fragmentshader;
+
+    McHandle<SoShaderParameter1f> m_p_sphereSizeParameter;
 };
