@@ -17,8 +17,6 @@ class HXHOLOPYRAMID_API HxOIVDisplaySurface : public HxModule
 {
     HX_HEADER(HxOIVDisplaySurface);
 public:
-    /// Constructor.
-    HxOIVDisplaySurface();
     
     HxPortIntSlider portEmissiveColor;
     HxConnection portTexture;
@@ -29,9 +27,7 @@ public:
 
     /// Compute method.
     virtual void compute();
-protected:
-    /// Destructor.
-    virtual ~HxOIVDisplaySurface();
+
 private:
     SoSeparator* m_p_root;
     SoMaterial* m_p_material;

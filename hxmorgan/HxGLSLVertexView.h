@@ -23,9 +23,6 @@ class HXMORGAN_API HxGLSLVertexView : public HxModule
   HX_HEADER(HxGLSLVertexView);
   
   public:
-    /// Constructor.
-    HxGLSLVertexView();
-
     /// Determines the way points are shown.
     enum DrawStyles 
     {
@@ -47,7 +44,6 @@ class HXMORGAN_API HxGLSLVertexView : public HxModule
     virtual void compute();
 
   protected:
-    virtual ~HxGLSLVertexView();
 
     virtual void setRenderMode(DrawStyles mode);
   private:  

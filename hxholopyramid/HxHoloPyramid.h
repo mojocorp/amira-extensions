@@ -15,8 +15,6 @@ class HXHOLOPYRAMID_API HxHoloPyramid : public HxModule
     HX_HEADER(HxHoloPyramid);
 
   public:
-    /// Constructor.
-    HxHoloPyramid();
 
     /// 
     HxPortIntSlider portDisplay;
@@ -29,7 +27,6 @@ class HXHOLOPYRAMID_API HxHoloPyramid : public HxModule
     virtual void compute();
 
   protected:
-    virtual ~HxHoloPyramid();
 
     QScopedPointer<QxHoloPyramidWidget> m_viewer;
 };

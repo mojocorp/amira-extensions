@@ -12,9 +12,6 @@ class HXMORGAN_API HxLorenzAttractor : public HxCompModule
     HX_HEADER(HxLorenzAttractor);
 
   public:
-    /// Constructor.
-    HxLorenzAttractor();
-
     /// Number of lineset points.
     HxPortIntSlider portNumPoints;
 
@@ -26,8 +23,4 @@ class HXMORGAN_API HxLorenzAttractor : public HxCompModule
 
     /// Compute method.
     virtual void compute();
-
-  protected:
-
-    virtual ~HxLorenzAttractor();
 };

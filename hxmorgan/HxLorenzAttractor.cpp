@@ -27,7 +27,7 @@ void HxLorenzAttractor::compute()
     if (portAction.wasHit()) {
         McHandle<HxLineSet> lineset = dynamic_cast<HxLineSet*>(getResult());
         if (!lineset) {
-            lineset = new HxLineSet();
+            lineset = HxLineSet::createInstance();
         }
 
         lineset->points.resize(portNumPoints.getValue());
